@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202007.00
+ * FreeRTOS PKCS #11 V1.1.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,20 +23,32 @@
  * http://www.FreeRTOS.org
  */
 
-#ifndef PORTABLE_DEFS_H_
-#define PORTABLE_DEFS_H_
-
-#include </usr/include/errno.h>
-
-/* redefine EWOULDBLOCK to be different than EAGAIN to broaden the test coverage
- * and cover more cases
+/* This is a dummy file that contains mutex stubs. This is needed in order to use
+ * CMock to generate the necessary mocks for the mutexes used by the PKCS #11
+ * mbed TLS implementation.
  */
-#undef EWOULDBLOCK
-#define EWOULDBLOCK    300
+#ifndef DUMMY_MUTEX_H_H
+#define DUMMY_MUTEX_H_H
+typedef struct mbedtls_threading_mutex_t
+{
+    int empty;
+} mbedtls_threading_mutex_t;
 
-#include "FreeRTOSConfig.h"
-#include "FreeRTOS.h"
-#include "portable.h"
 
+void mbedtls_mutex_init( mbedtls_threading_mutex_t * mutex ); 
+void mbedtls_mutex_free( mbedtls_threading_mutex_t * mutex ); 
+int mbedtls_mutex_lock( mbedtls_threading_mutex_t * mutex ); 
+int mbedtls_mutex_unlock( mbedtls_threading_mutex_t * mutex ); 
 
-#endif /* ifndef PORTABLE_DEFS_H_ */
+void mutex_init( mbedtls_threading_mutex_t * mutex ); 
+void mutex_free( mbedtls_threading_mutex_t * mutex ); 
+int mutex_lock( mbedtls_threading_mutex_t * mutex ); 
+int mutex_unlock( mbedtls_threading_mutex_t * mutex ); 
+
+mbedtls_mutex_init = &mutex_init;
+mbedtls_mutex_free = &mutex_free;
+mbedtls_mutex_lock = &mutex_lock;
+mbedtls_mutex_unlock = &mutex_unlock;
+
+#endif
+

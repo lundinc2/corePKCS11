@@ -28,14 +28,10 @@
 #include <stdbool.h>
 #include <string.h>
 
-/* FreeRTOS includes. */
-#include "FreeRTOS.h"
-#include "semphr.h"
-
 /* Mock includes. */
-#include "mock_queue.h"
 #include "mock_ctr_drbg.h"
 #include "mock_entropy.h"
+#include "mock_dummy_mutex.h"
 #include "mock_sha256.h"
 #include "mock_pk.h"
 #include "mock_x509_crt.h"
@@ -43,7 +39,6 @@
 #include "mock_ecdsa.h"
 #include "mock_rsa.h"
 #include "mock_bignum.h"
-#include "mock_portable.h"
 #include "mock_iot_pki_utils.h"
 #include "mock_mbedtls_error.h"
 
@@ -237,7 +232,7 @@ static CK_RV prvInitializePkcs11()
     CK_RV xResult = CKR_OK;
 
     PKCS11_PAL_Initialize_IgnoreAndReturn( CKR_OK );
-    xQueueCreateMutexStatic_IgnoreAndReturn( ( SemaphoreHandle_t ) 1 );
+    xQueueCreateMutexStatic_IgnoreAndReturn(  1 );
     mbedtls_entropy_init_Ignore();
     mbedtls_ctr_drbg_init_Ignore();
     mbedtls_ctr_drbg_seed_IgnoreAndReturn( 0 );
@@ -272,9 +267,9 @@ static CK_RV prvOpenSession( CK_SESSION_HANDLE_PTR pxSession )
     CK_FLAGS xFlags = CKF_SERIAL_SESSION | CKF_RW_SESSION;
 
     pvPortMalloc_Stub( pvPkcs11MallocCb );
-    xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
-    xQueueGenericSend_IgnoreAndReturn( pdTRUE );
-    xQueueCreateMutex_IgnoreAndReturn( ( SemaphoreHandle_t ) 1 );
+    xQueueSemaphoreTake_IgnoreAndReturn( 0 );
+    xQueueGenericSend_IgnoreAndReturn( 0 );
+    xQueueCreateMutex_IgnoreAndReturn(  1 );
     xResult = C_OpenSession( 0, xFlags, NULL, 0, pxSession );
 
     return xResult;
@@ -316,8 +311,8 @@ static CK_RV prvCreateCert( CK_SESSION_HANDLE_PTR pxSession,
 
     /* Create Certificate. */
     PKCS11_PAL_SaveObject_IgnoreAndReturn( 3 );
-    xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
-    xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+    xQueueSemaphoreTake_IgnoreAndReturn( 0 );
+    xQueueGenericSend_IgnoreAndReturn( 0 );
     xResult = C_CreateObject( *pxSession,
                               ( CK_ATTRIBUTE_PTR ) &xTemplate,
                               sizeof( xTemplate ) / sizeof( CK_ATTRIBUTE ),
@@ -359,8 +354,8 @@ static CK_RV prvCreateEcPriv( CK_SESSION_HANDLE_PTR pxSession,
     mbedtls_pk_write_key_der_IgnoreAndReturn( 1 );
     mbedtls_pk_free_CMockIgnore();
     PKCS11_PAL_SaveObject_IgnoreAndReturn( 2 );
-    xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
-    xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+    xQueueSemaphoreTake_IgnoreAndReturn( 0 );
+    xQueueGenericSend_IgnoreAndReturn( 0 );
     vPortFree_Stub( vPkcs11FreeCb );
     xResult = C_CreateObject( *pxSession,
                               ( CK_ATTRIBUTE_PTR ) &xPrivateKeyTemplate,
@@ -405,8 +400,8 @@ static CK_RV prvCreateEcPub( CK_SESSION_HANDLE_PTR pxSession,
     mbedtls_pk_write_pubkey_der_IgnoreAndReturn( 1 );
     mbedtls_pk_free_CMockIgnore();
     PKCS11_PAL_SaveObject_IgnoreAndReturn( 1 );
-    xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
-    xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+    xQueueSemaphoreTake_IgnoreAndReturn( 0 );
+    xQueueGenericSend_IgnoreAndReturn( 0 );
     vPortFree_Stub( vPkcs11FreeCb );
     xResult = C_CreateObject( *pxSession,
                               ( CK_ATTRIBUTE_PTR ) &xTemplate,
@@ -428,7 +423,7 @@ void test_pkcs11_C_Initialize( void )
     CK_RV xResult = CKR_OK;
 
     PKCS11_PAL_Initialize_IgnoreAndReturn( CKR_OK );
-    xQueueCreateMutexStatic_IgnoreAndReturn( ( SemaphoreHandle_t ) 1 );
+    xQueueCreateMutexStatic_IgnoreAndReturn(  1 );
     mbedtls_entropy_init_Ignore();
     mbedtls_ctr_drbg_init_Ignore();
     mbedtls_ctr_drbg_seed_IgnoreAndReturn( 0 );
@@ -466,7 +461,7 @@ void test_pkcs11_C_InitializeSeedFail( void )
     CK_RV xResult = CKR_OK;
 
     PKCS11_PAL_Initialize_IgnoreAndReturn( CKR_OK );
-    xQueueCreateMutexStatic_IgnoreAndReturn( ( SemaphoreHandle_t ) 1 );
+    xQueueCreateMutexStatic_IgnoreAndReturn(  1 );
     mbedtls_entropy_init_Ignore();
     mbedtls_ctr_drbg_init_Ignore();
     mbedtls_ctr_drbg_seed_IgnoreAndReturn( 1 );
@@ -817,9 +812,9 @@ void test_pkcs11_C_OpenSession( void )
     if( TEST_PROTECT() )
     {
         pvPortMalloc_Stub( pvPkcs11MallocCb );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
-        xQueueCreateMutex_IgnoreAndReturn( ( SemaphoreHandle_t ) 1 );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
+        xQueueCreateMutex_IgnoreAndReturn(  1 );
         xResult = C_OpenSession( 0, xFlags, NULL, 0, &xSession );
         TEST_ASSERT_EQUAL( CKR_OK, xResult );
     }
@@ -844,15 +839,15 @@ void test_pkcs11_C_OpenSessionMutexMem( void )
     if( TEST_PROTECT() )
     {
         pvPortMalloc_Stub( pvPkcs11MallocCb );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         xQueueCreateMutex_ExpectAnyArgsAndReturn( NULL );
-        xQueueCreateMutex_ExpectAnyArgsAndReturn( ( SemaphoreHandle_t ) 1 );
+        xQueueCreateMutex_ExpectAnyArgsAndReturn(  1 );
         vQueueDelete_Ignore();
         xResult = C_OpenSession( 0, xFlags, NULL, 0, &xSession );
         TEST_ASSERT_EQUAL( CKR_HOST_MEMORY, xResult );
 
-        xQueueCreateMutex_ExpectAnyArgsAndReturn( ( SemaphoreHandle_t ) 1 );
+        xQueueCreateMutex_ExpectAnyArgsAndReturn(  1 );
         xQueueCreateMutex_ExpectAnyArgsAndReturn( NULL );
         xResult = C_OpenSession( 0, xFlags, NULL, 0, &xSession );
         TEST_ASSERT_EQUAL( CKR_HOST_MEMORY, xResult );
@@ -1029,8 +1024,8 @@ void test_pkcs11_C_CreateObjectECPrivKey( void )
         mbedtls_pk_write_key_der_ReturnArrayThruPtr_buf( pusFakePrivateKey, sizeof( pusFakePrivateKey ) );
         mbedtls_pk_free_CMockIgnore();
         PKCS11_PAL_SaveObject_IgnoreAndReturn( 1 );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         vPortFree_Stub( vPkcs11FreeCb );
         xResult = C_CreateObject( xSession,
                                   ( CK_ATTRIBUTE_PTR ) &xPrivateKeyTemplate,
@@ -1180,8 +1175,8 @@ void test_pkcs11_C_CreateObjectECPrivKeyDerFail( void )
         mbedtls_strerror_highlevel_IgnoreAndReturn( NULL );
         mbedtls_pk_free_CMockIgnore();
         PKCS11_PAL_SaveObject_IgnoreAndReturn( 1 );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         vPortFree_Stub( vPkcs11FreeCb );
         xResult = C_CreateObject( xSession,
                                   ( CK_ATTRIBUTE_PTR ) &xPrivateKeyTemplate,
@@ -1243,8 +1238,8 @@ void test_pkcs11_C_CreateObjectECPubKey( void )
         mbedtls_pk_write_pubkey_der_IgnoreAndReturn( 1 );
         mbedtls_pk_free_Stub( vMbedPkFree );
         PKCS11_PAL_SaveObject_IgnoreAndReturn( 1 );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         vPortFree_Stub( vPkcs11FreeCb );
         xResult = C_CreateObject( xSession,
                                   ( CK_ATTRIBUTE_PTR ) &xPublicKeyTemplate,
@@ -1385,8 +1380,8 @@ void test_pkcs11_C_CreateObjectRSAPrivKey( void )
         mbedtls_pk_write_key_der_IgnoreAndReturn( 1 );
         mbedtls_pk_free_Stub( vMbedPkFree );
         PKCS11_PAL_SaveObject_IgnoreAndReturn( 1 );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         vPortFree_Stub( vPkcs11FreeCb );
         xResult = C_CreateObject( xSession,
                                   ( CK_ATTRIBUTE_PTR ) &xPrivateKeyTemplate,
@@ -1530,8 +1525,8 @@ void test_pkcs11_C_CreateObjectCertificate( void )
     if( TEST_PROTECT() )
     {
         PKCS11_PAL_SaveObject_IgnoreAndReturn( 1 );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         xResult = C_CreateObject( xSession,
                                   ( CK_ATTRIBUTE_PTR ) &xCertificateTemplate,
                                   sizeof( xCertificateTemplate ) / sizeof( CK_ATTRIBUTE ),
@@ -1566,8 +1561,8 @@ void test_pkcs11_C_CreateObjectCertificateBadType( void )
     if( TEST_PROTECT() )
     {
         PKCS11_PAL_SaveObject_IgnoreAndReturn( 1 );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         PKCS11_PAL_GetObjectValueCleanup_Ignore();
 
         xResult = C_CreateObject( xSession,
@@ -1604,8 +1599,8 @@ void test_pkcs11_C_CreateObjectCertificateBadToken( void )
     if( TEST_PROTECT() )
     {
         PKCS11_PAL_SaveObject_IgnoreAndReturn( 1 );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         PKCS11_PAL_GetObjectValueCleanup_Ignore();
         xResult = C_CreateObject( xSession,
                                   ( CK_ATTRIBUTE_PTR ) &xCertificateTemplate,
@@ -1643,8 +1638,8 @@ void test_pkcs11_C_CreateObjectCertificateUnkownAtt( void )
     if( TEST_PROTECT() )
     {
         PKCS11_PAL_SaveObject_IgnoreAndReturn( 1 );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         PKCS11_PAL_GetObjectValueCleanup_Ignore();
         xResult = C_CreateObject( xSession,
                                   ( CK_ATTRIBUTE_PTR ) &xCertificateTemplate,
@@ -2427,8 +2422,8 @@ void test_pkcs11_PKCS11_PAL_DestroyObject( void )
         pvPortMalloc_Stub( pvPkcs11MallocCb );
         vPortFree_Stub( vPkcs11FreeCb );
         PKCS11_PAL_SaveObject_IgnoreAndReturn( 2 );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         PKCS11_PAL_GetObjectValueCleanup_CMockIgnore();
         xResult = PKCS11_PAL_DestroyObject( xObject );
         TEST_ASSERT_EQUAL( CKR_OK, xResult );
@@ -2458,8 +2453,8 @@ void test_pkcs11_PKCS11_PAL_DestroyObjectBadSave( void )
         pvPortMalloc_Stub( pvPkcs11MallocCb );
         vPortFree_Stub( vPkcs11FreeCb );
         PKCS11_PAL_SaveObject_IgnoreAndReturn( xObject + 1 );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         PKCS11_PAL_GetObjectValueCleanup_CMockIgnore();
         xResult = PKCS11_PAL_DestroyObject( xObject );
         TEST_ASSERT_EQUAL( CKR_GENERAL_ERROR, xResult );
@@ -2518,8 +2513,8 @@ void test_pkcs11_PKCS11_PAL_DestroyObjectPubKey( void )
         pvPortMalloc_Stub( pvPkcs11MallocCb );
         vPortFree_Stub( vPkcs11FreeCb );
         PKCS11_PAL_SaveObject_IgnoreAndReturn( 1 );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         PKCS11_PAL_GetObjectValueCleanup_CMockIgnore();
         xResult = PKCS11_PAL_DestroyObject( xObject );
         TEST_ASSERT_EQUAL( CKR_OK, xResult );
@@ -2552,8 +2547,8 @@ void test_pkcs11_PKCS11_PAL_DestroyObjectPrivKey( void )
         pvPortMalloc_Stub( pvPkcs11MallocCb );
         vPortFree_Stub( vPkcs11FreeCb );
         PKCS11_PAL_SaveObject_IgnoreAndReturn( 2 );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         PKCS11_PAL_GetObjectValueCleanup_CMockIgnore();
         xResult = PKCS11_PAL_DestroyObject( xObject );
         TEST_ASSERT_EQUAL( CKR_OK, xResult );
@@ -2584,11 +2579,11 @@ void test_pkcs11_C_SignInitECDSA( void )
         TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
         PKCS11_PAL_GetObjectValue_IgnoreAndReturn( CKR_OK );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
         mbedtls_pk_free_CMockIgnore();
         mbedtls_pk_init_CMockIgnore();
         mbedtls_pk_parse_key_IgnoreAndReturn( 0 );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         PKCS11_PAL_GetObjectValueCleanup_CMockIgnore();
         mbedtls_pk_get_type_IgnoreAndReturn( MBEDTLS_PK_ECDSA );
         xResult = C_SignInit( xSession, &xMechanism, xObject );
@@ -2620,13 +2615,13 @@ void test_pkcs11_C_SignInitECDSABadArgs( void )
         xResult = C_SignInit( xSession, NULL, xKey );
         TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, xResult );
 
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
         mbedtls_pk_free_CMockIgnore();
         mbedtls_pk_init_CMockIgnore();
         mbedtls_pk_parse_key_IgnoreAndReturn( -1 );
         mbedtls_strerror_highlevel_IgnoreAndReturn( NULL );
         mbedtls_strerror_lowlevel_IgnoreAndReturn( NULL );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         PKCS11_PAL_GetObjectValueCleanup_CMockIgnore();
         xResult = C_SignInit( xSession, &xMechanism, xKey );
         TEST_ASSERT_EQUAL( CKR_KEY_HANDLE_INVALID, xResult );
@@ -2695,20 +2690,20 @@ void test_pkcs11_C_SignECDSA( void )
     if( TEST_PROTECT() )
     {
         PKCS11_PAL_GetObjectValue_IgnoreAndReturn( CKR_OK );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
         mbedtls_pk_free_CMockIgnore();
         mbedtls_pk_init_CMockIgnore();
         mbedtls_pk_parse_key_IgnoreAndReturn( 0 );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         PKCS11_PAL_GetObjectValueCleanup_CMockIgnore();
         mbedtls_pk_get_type_IgnoreAndReturn( MBEDTLS_PK_ECDSA );
         xResult = C_SignInit( xSession, &xMechanism, xKey );
         TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
         mbedtls_pk_sign_IgnoreAndReturn( 0 );
         mbedtls_pk_sign_ReturnThruPtr_ctx( &xSignAndVerifyKey );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         PKI_mbedTLSSignatureToPkcs11Signature_IgnoreAndReturn( 0 );
         xResult = C_Sign( xSession, pxDummyData, ulDummyDataLen, pxDummySignature, &ulDummySignatureLen );
         TEST_ASSERT_EQUAL( CKR_OK, xResult );
@@ -2742,20 +2737,20 @@ void test_pkcs11_C_SignRSA( void )
     if( TEST_PROTECT() )
     {
         PKCS11_PAL_GetObjectValue_IgnoreAndReturn( CKR_OK );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
         mbedtls_pk_free_CMockIgnore();
         mbedtls_pk_init_CMockIgnore();
         mbedtls_pk_parse_key_IgnoreAndReturn( 0 );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         PKCS11_PAL_GetObjectValueCleanup_CMockIgnore();
         mbedtls_pk_get_type_IgnoreAndReturn( MBEDTLS_PK_RSA );
         xResult = C_SignInit( xSession, &xMechanism, xKey );
         TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
         mbedtls_pk_sign_IgnoreAndReturn( 0 );
         mbedtls_pk_sign_ReturnThruPtr_ctx( &xSignAndVerifyKey );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         PKI_mbedTLSSignatureToPkcs11Signature_IgnoreAndReturn( 0 );
         xResult = C_Sign( xSession, pxDummyData, ulDummyDataLen, pxDummySignature, &ulDummySignatureLen );
         TEST_ASSERT_EQUAL( CKR_OK, xResult );
@@ -2814,11 +2809,11 @@ void test_pkcs11_C_SignBadArgs( void )
     if( TEST_PROTECT() )
     {
         PKCS11_PAL_GetObjectValue_IgnoreAndReturn( CKR_OK );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
         mbedtls_pk_free_CMockIgnore();
         mbedtls_pk_init_CMockIgnore();
         mbedtls_pk_parse_key_IgnoreAndReturn( 0 );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         PKCS11_PAL_GetObjectValueCleanup_CMockIgnore();
         mbedtls_pk_get_type_IgnoreAndReturn( MBEDTLS_PK_ECDSA );
         xResult = C_SignInit( xSession, &xMechanism, xKey );
@@ -2870,12 +2865,12 @@ void test_pkcs11_C_VerifyInitECDSA( void )
 
         PKCS11_PAL_GetObjectValue_ExpectAnyArgsAndReturn( CKR_OK );
         PKCS11_PAL_GetObjectValue_ReturnThruPtr_pIsPrivate( &xIsPrivate );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
         mbedtls_pk_free_CMockIgnore();
         mbedtls_pk_init_ExpectAnyArgs();
         mbedtls_pk_init_ReturnThruPtr_ctx( &xVerifyKey );
         mbedtls_pk_parse_public_key_IgnoreAndReturn( 0 );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         PKCS11_PAL_GetObjectValueCleanup_CMockIgnore();
         mbedtls_pk_get_type_IgnoreAndReturn( MBEDTLS_PK_ECDSA );
         xResult = C_VerifyInit( xSession, &xMechanism, xObject );
@@ -2909,13 +2904,13 @@ void test_pkcs11_C_VerifyInitECDSAPriv( void )
 
         PKCS11_PAL_GetObjectValue_ExpectAnyArgsAndReturn( CKR_OK );
         PKCS11_PAL_GetObjectValue_ReturnThruPtr_pIsPrivate( &xIsPrivate );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
         mbedtls_pk_free_CMockIgnore();
         mbedtls_pk_init_ExpectAnyArgs();
         mbedtls_pk_init_ReturnThruPtr_ctx( &xVerifyKey );
         mbedtls_pk_parse_public_key_IgnoreAndReturn( -1 );
         mbedtls_pk_parse_key_IgnoreAndReturn( 0 );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         PKCS11_PAL_GetObjectValueCleanup_CMockIgnore();
         mbedtls_pk_get_type_IgnoreAndReturn( MBEDTLS_PK_ECDSA );
         xResult = C_VerifyInit( xSession, &xMechanism, xObject );
@@ -2963,14 +2958,14 @@ void test_pkcs11_C_VerifyInitBadArgs( void )
 
         PKCS11_PAL_GetObjectValue_ExpectAnyArgsAndReturn( CKR_OK );
         PKCS11_PAL_GetObjectValue_ReturnThruPtr_pIsPrivate( &xIsPrivate );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
         mbedtls_pk_free_CMockIgnore();
         mbedtls_pk_init_CMockIgnore();
         mbedtls_pk_parse_public_key_IgnoreAndReturn( -1 );
         mbedtls_pk_parse_key_IgnoreAndReturn( -1 );
         mbedtls_strerror_highlevel_IgnoreAndReturn( NULL );
         mbedtls_strerror_lowlevel_IgnoreAndReturn( NULL );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         xResult = C_VerifyInit( xSession, &xMechanism, xObject );
         TEST_ASSERT_EQUAL( CKR_KEY_HANDLE_INVALID, xResult );
 
@@ -3029,12 +3024,12 @@ void test_pkcs11_C_VerifyECDSA( void )
 
         PKCS11_PAL_GetObjectValue_ExpectAnyArgsAndReturn( CKR_OK );
         PKCS11_PAL_GetObjectValue_ReturnThruPtr_pIsPrivate( &xIsPrivate );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
         mbedtls_pk_free_CMockIgnore();
         mbedtls_pk_init_ExpectAnyArgs();
         mbedtls_pk_init_ReturnThruPtr_ctx( &xVerifyKey );
         mbedtls_pk_parse_public_key_IgnoreAndReturn( 0 );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         PKCS11_PAL_GetObjectValueCleanup_CMockIgnore();
         mbedtls_pk_get_type_IgnoreAndReturn( MBEDTLS_PK_ECDSA );
         xResult = C_VerifyInit( xSession, &xMechanism, xObject );
@@ -3043,9 +3038,9 @@ void test_pkcs11_C_VerifyECDSA( void )
         mbedtls_pk_verify_IgnoreAndReturn( 0 );
         mbedtls_mpi_init_CMockIgnore();
         mbedtls_mpi_read_binary_IgnoreAndReturn( 0 );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
         mbedtls_ecdsa_verify_IgnoreAndReturn( 0 );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         mbedtls_mpi_free_CMockIgnore();
         xResult = C_Verify( xSession, pxDummyData, ulDummyDataLen, pxDummySignature, ulDummySignatureLen );
         TEST_ASSERT_EQUAL( CKR_OK, xResult );
@@ -3082,12 +3077,12 @@ void test_pkcs11_C_VerifyECDSAInvalidSig( void )
 
         PKCS11_PAL_GetObjectValue_ExpectAnyArgsAndReturn( CKR_OK );
         PKCS11_PAL_GetObjectValue_ReturnThruPtr_pIsPrivate( &xIsPrivate );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
         mbedtls_pk_free_CMockIgnore();
         mbedtls_pk_init_ExpectAnyArgs();
         mbedtls_pk_init_ReturnThruPtr_ctx( &xVerifyKey );
         mbedtls_pk_parse_public_key_IgnoreAndReturn( 0 );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         PKCS11_PAL_GetObjectValueCleanup_CMockIgnore();
         mbedtls_pk_get_type_IgnoreAndReturn( MBEDTLS_PK_ECDSA );
         xResult = C_VerifyInit( xSession, &xMechanism, xObject );
@@ -3096,9 +3091,9 @@ void test_pkcs11_C_VerifyECDSAInvalidSig( void )
         mbedtls_pk_verify_IgnoreAndReturn( 0 );
         mbedtls_mpi_init_CMockIgnore();
         mbedtls_mpi_read_binary_IgnoreAndReturn( 0 );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
         mbedtls_ecdsa_verify_IgnoreAndReturn( -1 );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         mbedtls_mpi_free_CMockIgnore();
         xResult = C_Verify( xSession, pxDummyData, ulDummyDataLen, pxDummySignature, ulDummySignatureLen );
         TEST_ASSERT_EQUAL( CKR_SIGNATURE_INVALID, xResult );
@@ -3134,11 +3129,11 @@ void test_pkcs11_C_VerifyRSA( void )
 
         PKCS11_PAL_GetObjectValue_ExpectAnyArgsAndReturn( CKR_OK );
         PKCS11_PAL_GetObjectValue_ReturnThruPtr_pIsPrivate( &xIsPrivate );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
         mbedtls_pk_free_CMockIgnore();
         mbedtls_pk_init_CMockIgnore();
         mbedtls_pk_parse_public_key_IgnoreAndReturn( 0 );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         PKCS11_PAL_GetObjectValueCleanup_CMockIgnore();
         mbedtls_pk_get_type_IgnoreAndReturn( MBEDTLS_PK_RSA );
         xResult = C_VerifyInit( xSession, &xMechanism, xObject );
@@ -3180,12 +3175,12 @@ void test_pkcs11_C_VerifyBadArgs( void )
 
         PKCS11_PAL_GetObjectValue_ExpectAnyArgsAndReturn( CKR_OK );
         PKCS11_PAL_GetObjectValue_ReturnThruPtr_pIsPrivate( &xIsPrivate );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
         mbedtls_pk_free_CMockIgnore();
         mbedtls_pk_init_ExpectAnyArgs();
         mbedtls_pk_init_ReturnThruPtr_ctx( &xVerifyKey );
         mbedtls_pk_parse_public_key_IgnoreAndReturn( 0 );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         PKCS11_PAL_GetObjectValueCleanup_CMockIgnore();
         mbedtls_pk_get_type_IgnoreAndReturn( MBEDTLS_PK_ECDSA );
         xResult = C_VerifyInit( xSession, &xMechanism, xObject );
@@ -3299,8 +3294,8 @@ void test_pkcs11_C_GenerateKeyPairECDSA( void )
         PKCS11_PAL_SaveObject_IgnoreAndReturn( 1 );
         mbedtls_pk_write_key_der_IgnoreAndReturn( 1 );
         PKCS11_PAL_SaveObject_IgnoreAndReturn( 2 );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         vPortFree_Stub( vPkcs11FreeCb );
         mbedtls_pk_free_CMockIgnore();
         xResult = C_GenerateKeyPair( xSession, &xMechanism, xPublicKeyTemplate,
@@ -3365,14 +3360,14 @@ void test_pkcs11_C_GenerateKeyPairECDSALockFail( void )
         PKCS11_PAL_SaveObject_IgnoreAndReturn( 1 );
         mbedtls_pk_write_key_der_IgnoreAndReturn( 1 );
         PKCS11_PAL_SaveObject_IgnoreAndReturn( 2 );
-        xQueueSemaphoreTake_ExpectAnyArgsAndReturn( pdTRUE );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
-        xQueueSemaphoreTake_ExpectAnyArgsAndReturn( pdFALSE );
+        xQueueSemaphoreTake_ExpectAnyArgsAndReturn( 0 );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
+        xQueueSemaphoreTake_ExpectAnyArgsAndReturn( 1 );
         vPortFree_Stub( vPkcs11FreeCb );
         mbedtls_pk_free_CMockIgnore();
         PKCS11_PAL_GetObjectValue_IgnoreAndReturn( CKR_OK );
         PKCS11_PAL_SaveObject_IgnoreAndReturn( 2 );
-        xQueueSemaphoreTake_ExpectAnyArgsAndReturn( pdTRUE );
+        xQueueSemaphoreTake_ExpectAnyArgsAndReturn( 0 );
         PKCS11_PAL_GetObjectValueCleanup_CMockIgnore();
         xResult = C_GenerateKeyPair( xSession, &xMechanism, xPublicKeyTemplate,
                                      sizeof( xPublicKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
@@ -3436,8 +3431,8 @@ void test_pkcs11_C_GenerateKeyPairECDSABadPrivateKeyParam( void )
         PKCS11_PAL_SaveObject_IgnoreAndReturn( 1 );
         mbedtls_pk_write_key_der_IgnoreAndReturn( 1 );
         PKCS11_PAL_SaveObject_IgnoreAndReturn( 2 );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         vPortFree_Stub( vPkcs11FreeCb );
         mbedtls_pk_free_CMockIgnore();
         xResult = C_GenerateKeyPair( xSession, &xMechanism, xPublicKeyTemplate,
@@ -3640,8 +3635,8 @@ void test_pkcs11_C_DestroyObject( void )
         pvPortMalloc_Stub( pvPkcs11MallocCb );
         vPortFree_Stub( vPkcs11FreeCb );
         PKCS11_PAL_SaveObject_IgnoreAndReturn( 2 );
-        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
-        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        xQueueSemaphoreTake_IgnoreAndReturn( 0 );
+        xQueueGenericSend_IgnoreAndReturn( 0 );
         PKCS11_PAL_GetObjectValueCleanup_CMockIgnore();
         xResult = C_DestroyObject( xSession, xObject );
         TEST_ASSERT_EQUAL( CKR_OK, xResult );

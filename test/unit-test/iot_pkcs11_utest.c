@@ -36,7 +36,6 @@
 
 /* Mock includes. */
 #include "mock_pkcs11.h"
-#include "mock_portable.h"
 
 /* ============================  GLOBAL VARIABLES =========================== */
 static CK_FUNCTION_LIST prvP11FunctionList =
