@@ -138,7 +138,7 @@ set( mock_dir "mbedtls_mocks" )
 
 # list the files to mock here
 list(APPEND mock_list
-            "${MODULE_ROOT_DIR}/test/unit-test/config/dummy_mutex.h"
+    #"${MODULE_ROOT_DIR}/test/unit-test/config/dummy_mutex.h"
             "${MODULE_ROOT_DIR}/source/include/iot_pkcs11_pal.h"
             "${MODULE_ROOT_DIR}/3rdparty/mbedtls/include/mbedtls/ctr_drbg.h"
             "${MODULE_ROOT_DIR}/3rdparty/mbedtls/include/mbedtls/sha256.h"
@@ -158,6 +158,7 @@ list(APPEND mock_list
 # list the directories your mocks need
 list(APPEND mock_include_list
             config
+            "${MODULE_ROOT_DIR}/3rdparty/mbedtls/include/mbedtls"
             "${MODULE_ROOT_DIR}/3rdparty"
             "${MODULE_ROOT_DIR}/test/unit_test/config"
             "${MODULE_ROOT_DIR}/source/include/"

@@ -31,12 +31,12 @@
 /* Mock includes. */
 #include "mock_ctr_drbg.h"
 #include "mock_entropy.h"
-#include "mock_dummy_mutex.h"
 #include "mock_sha256.h"
 #include "mock_pk.h"
 #include "mock_x509_crt.h"
 #include "mock_ecp.h"
 #include "mock_ecdsa.h"
+//#include "mock_dummy_mutex.h"
 #include "mock_rsa.h"
 #include "mock_bignum.h"
 #include "mock_iot_pki_utils.h"
@@ -171,6 +171,22 @@ void vPkcs11FreeCb( void * ptr,
         free( ptr );
     }
 }
+
+static int threading_mutex_fail( mbedtls_threading_mutex_t *mutex )
+{
+    ((void) mutex );
+    return( MBEDTLS_ERR_THREADING_BAD_INPUT_DATA );
+}
+static void threading_mutex_dummy( mbedtls_threading_mutex_t *mutex )
+{
+    ((void) mutex );
+    return;
+}
+
+void (*mbedtls_mutex_init)( mbedtls_threading_mutex_t * ) = threading_mutex_dummy;
+void (*mbedtls_mutex_free)( mbedtls_threading_mutex_t * ) = threading_mutex_dummy;
+int (*mbedtls_mutex_lock)( mbedtls_threading_mutex_t * ) = threading_mutex_fail;
+int (*mbedtls_mutex_unlock)( mbedtls_threading_mutex_t * ) = threading_mutex_fail;
 
 /* ============================   UNITY FIXTURES ============================ */
 void setUp( void )

@@ -45,6 +45,7 @@
 #include "mbedtls/sha256.h"
 #include "mbedtls/base64.h"
 #include "mbedtls/platform.h"
+#include "mbedtls/threading.h"
 
 /* Custom mbedtls utils include. */
 #include "mbedtls_error.h"

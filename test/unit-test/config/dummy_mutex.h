@@ -29,26 +29,27 @@
  */
 #ifndef DUMMY_MUTEX_H_H
 #define DUMMY_MUTEX_H_H
-typedef struct mbedtls_threading_mutex_t
-{
-    int empty;
-} mbedtls_threading_mutex_t;
+
+//typedef struct mbedtls_threading_mutex_t
+//{
+//    int empty;
+//} mbedtls_threading_mutex_t;
 
 
-void mbedtls_mutex_init( mbedtls_threading_mutex_t * mutex ); 
-void mbedtls_mutex_free( mbedtls_threading_mutex_t * mutex ); 
-int mbedtls_mutex_lock( mbedtls_threading_mutex_t * mutex ); 
-int mbedtls_mutex_unlock( mbedtls_threading_mutex_t * mutex ); 
+//void mbedtls_mutex_init( mbedtls_threading_mutex_t * mutex ); 
+//void mbedtls_mutex_free( mbedtls_threading_mutex_t * mutex ); 
+//int mbedtls_mutex_lock( mbedtls_threading_mutex_t * mutex ); 
+//int mbedtls_mutex_unlock( mbedtls_threading_mutex_t * mutex ); 
 
-void mutex_init( mbedtls_threading_mutex_t * mutex ); 
-void mutex_free( mbedtls_threading_mutex_t * mutex ); 
-int mutex_lock( mbedtls_threading_mutex_t * mutex ); 
-int mutex_unlock( mbedtls_threading_mutex_t * mutex ); 
-
-mbedtls_mutex_init = &mutex_init;
-mbedtls_mutex_free = &mutex_free;
-mbedtls_mutex_lock = &mutex_lock;
-mbedtls_mutex_unlock = &mutex_unlock;
+//void mutex_init( mbedtls_threading_mutex_t * mutex ); 
+//void mutex_free( mbedtls_threading_mutex_t * mutex ); 
+//int mutex_lock( mbedtls_threading_mutex_t * mutex ); 
+//int mutex_unlock( mbedtls_threading_mutex_t * mutex ); 
+//
+//mbedtls_mutex_init = &mutex_init;
+//mbedtls_mutex_free = &mutex_free;
+//mbedtls_mutex_lock = &mutex_lock;
+//mbedtls_mutex_unlock = &mutex_unlock;
 
 #endif
 
