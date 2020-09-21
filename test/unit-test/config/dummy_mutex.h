@@ -40,6 +40,9 @@
 //void mbedtls_mutex_free( mbedtls_threading_mutex_t * mutex ); 
 //int mbedtls_mutex_lock( mbedtls_threading_mutex_t * mutex ); 
 //int mbedtls_mutex_unlock( mbedtls_threading_mutex_t * mutex ); 
+void *fake_malloc(size_t size);
+void *fake_calloc(size_t nitems, size_t size);
+void fake_free(void *ptr);
 
 //void mutex_init( mbedtls_threading_mutex_t * mutex ); 
 //void mutex_free( mbedtls_threading_mutex_t * mutex ); 

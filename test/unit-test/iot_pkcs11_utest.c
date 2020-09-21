@@ -36,6 +36,7 @@
 
 /* Mock includes. */
 #include "mock_pkcs11.h"
+#include "mock_dummy_mutex.h"
 
 /* ============================  GLOBAL VARIABLES =========================== */
 static CK_FUNCTION_LIST prvP11FunctionList =
@@ -335,10 +336,14 @@ void test_IotPkcs11_xGetSlotList( void )
     CK_RV xResult = CKR_OK;
     CK_SLOT_ID_PTR pxSlotId = NULL;
     CK_ULONG xSlotCount = 0;
+    CK_ULONG xExpectedSlotCount = 1;
 
     vCommonStubs();
-    C_GetSlotList_IgnoreAndReturn( CKR_OK );
-    pvPortMalloc_Stub( pvPkcs11MallocCb );
+    C_GetSlotList_ExpectAnyArgsAndReturn( CKR_OK );
+    C_GetSlotList_ReturnThruPtr_pulCount( &xExpectedSlotCount );
+    C_GetSlotList_ExpectAnyArgsAndReturn( CKR_OK );
+    C_GetSlotList_ReturnThruPtr_pulCount( &xExpectedSlotCount );
+    fake_malloc_Stub( pvPkcs11MallocCb );
     xResult = xGetSlotList( &pxSlotId, &xSlotCount );
 
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
@@ -357,7 +362,7 @@ void test_IotPkcs11_xGetSlotListBadFunctionList( void )
     CK_ULONG xSlotCount = 0;
 
     C_GetFunctionList_IgnoreAndReturn( CKR_ARGUMENTS_BAD );
-    pvPortMalloc_IgnoreAndReturn( NULL );
+    fake_malloc_IgnoreAndReturn( NULL );
     xResult = xGetSlotList( &pxSlotId, &xSlotCount );
 
     TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, xResult );
@@ -375,7 +380,7 @@ void test_IotPkcs11_xGetSlotListBadSlotList( void )
 
     vCommonStubs();
     C_GetSlotList_IgnoreAndReturn( CKR_ARGUMENTS_BAD );
-    pvPortMalloc_IgnoreAndReturn( NULL );
+    fake_malloc_IgnoreAndReturn( NULL );
     xResult = xGetSlotList( &pxSlotId, &xSlotCount );
 
     TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, xResult );
@@ -395,8 +400,8 @@ void test_IotPkcs11_xGetSlotListFreeMemory( void )
 
     vCommonStubs();
     C_GetSlotList_Stub( ( void * ) xSecondGetFails );
-    pvPortMalloc_Stub( pvPkcs11MallocCb );
-    vPortFree_Stub( vPkcs11FreeCb );
+    fake_malloc_Stub( pvPkcs11MallocCb );
+    fake_free_Stub( vPkcs11FreeCb );
     xResult = xGetSlotList( &pxSlotId, &xSlotCount );
 
     TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, xResult );
@@ -414,7 +419,7 @@ void test_IotPkcs11_xGetSlotListNoMemory( void )
 
     vCommonStubs();
     C_GetSlotList_IgnoreAndReturn( CKR_OK );
-    pvPortMalloc_IgnoreAndReturn( NULL );
+    fake_malloc_IgnoreAndReturn( NULL );
     xResult = xGetSlotList( &pxSlotId, &xSlotCount );
 
     TEST_ASSERT_EQUAL( CKR_HOST_MEMORY, xResult );
@@ -429,8 +434,8 @@ void test_IotPkcs11_xInitializePkcs11Token( void )
     CK_RV xResult = CKR_OK;
 
     vCommonStubs();
-    pvPortMalloc_Stub( pvPkcs11MallocCb );
-    vPortFree_Stub( vPkcs11FreeCb );
+    fake_malloc_Stub( pvPkcs11MallocCb );
+    fake_free_Stub( vPkcs11FreeCb );
     C_GetSlotList_Stub( ( void * ) xGet1Item );
     C_GetTokenInfo_IgnoreAndReturn( CKR_OK );
     C_InitToken_IgnoreAndReturn( CKR_OK );
@@ -448,8 +453,8 @@ void test_IotPkcs11_xInitializePkcs11TokenBadC_GetTokenInfo( void )
     CK_RV xResult = CKR_OK;
 
     vCommonStubs();
-    pvPortMalloc_Stub( pvPkcs11MallocCb );
-    vPortFree_Stub( vPkcs11FreeCb );
+    fake_malloc_Stub( pvPkcs11MallocCb );
+    fake_free_Stub( vPkcs11FreeCb );
     C_GetSlotList_Stub( ( void * ) xGet1Item );
     C_GetTokenInfo_IgnoreAndReturn( CKR_HOST_MEMORY );
     C_InitToken_IgnoreAndReturn( CKR_OK );
@@ -467,8 +472,8 @@ void test_IotPkcs11_xInitializePkcs11TokenUninitializedToken( void )
     CK_RV xResult = CKR_OK;
 
     vCommonStubs();
-    pvPortMalloc_Stub( pvPkcs11MallocCb );
-    vPortFree_Stub( vPkcs11FreeCb );
+    fake_malloc_Stub( pvPkcs11MallocCb );
+    fake_free_Stub( vPkcs11FreeCb );
     C_GetSlotList_Stub( ( void * ) xGet1Item );
     C_GetTokenInfo_Stub( ( void * ) prvUninitializedToken );
     C_InitToken_IgnoreAndReturn( CKR_OK );
@@ -486,8 +491,8 @@ void test_IotPkcs11_xInitializePkcs11TokenMallocFail( void )
     CK_RV xResult = CKR_OK;
 
     vCommonStubs();
-    pvPortMalloc_Stub( pvPkcs11MallocCbFailEveryOtherCall );
-    vPortFree_Stub( vPkcs11FreeCb );
+    fake_malloc_Stub( pvPkcs11MallocCbFailEveryOtherCall );
+    fake_free_Stub( vPkcs11FreeCb );
     C_GetSlotList_Stub( ( void * ) xGet1Item );
     C_GetTokenInfo_IgnoreAndReturn( CKR_OK );
     C_InitToken_IgnoreAndReturn( CKR_OK );
@@ -521,8 +526,8 @@ void test_IotPkcs11_xInitializePkcs11TokenNullTokenInfo( void )
     prvP11FunctionList.C_GetTokenInfo = NULL;
 
     vCommonStubs();
-    pvPortMalloc_Stub( pvPkcs11MallocCb );
-    vPortFree_Stub( vPkcs11FreeCb );
+    fake_malloc_Stub( pvPkcs11MallocCb );
+    fake_free_Stub( vPkcs11FreeCb );
     C_GetSlotList_Stub( ( void * ) xGet1Item );
     xResult = xInitializePkcs11Token();
 
@@ -542,8 +547,8 @@ void test_IotPkcs11_xInitializePkcs11TokenNullInitToken( void )
     prvP11FunctionList.C_InitToken = NULL;
 
     vCommonStubs();
-    pvPortMalloc_Stub( pvPkcs11MallocCb );
-    vPortFree_Stub( vPkcs11FreeCb );
+    fake_malloc_Stub( pvPkcs11MallocCb );
+    fake_free_Stub( vPkcs11FreeCb );
     C_GetSlotList_Stub( ( void * ) xGet1Item );
     xResult = xInitializePkcs11Token();
 
@@ -562,8 +567,8 @@ void test_IotPkcs11_xInitializePkcs11TokenHasTokenInfo( void )
     CK_RV xResult = CKR_OK;
 
     vCommonStubs();
-    pvPortMalloc_Stub( pvPkcs11MallocCb );
-    vPortFree_Stub( vPkcs11FreeCb );
+    fake_malloc_Stub( pvPkcs11MallocCb );
+    fake_free_Stub( vPkcs11FreeCb );
     C_GetSlotList_Stub( ( void * ) xGet1Item );
     C_GetTokenInfo_IgnoreAndReturn( CKR_OK );
     C_InitToken_IgnoreAndReturn( CKR_OK );
@@ -618,8 +623,8 @@ void test_IotPkcs11_xInitializePkcs11Session( void )
 
     vCommonStubs();
     C_GetSlotList_Stub( ( void * ) xGet1Item );
-    pvPortMalloc_Stub( pvPkcs11MallocCb );
-    vPortFree_Stub( vPkcs11FreeCb );
+    fake_malloc_Stub( pvPkcs11MallocCb );
+    fake_free_Stub( vPkcs11FreeCb );
     C_OpenSession_IgnoreAndReturn( CKR_OK );
     C_Login_IgnoreAndReturn( CKR_OK );
     xResult = xInitializePkcs11Session( &xHandle );
@@ -639,8 +644,8 @@ void test_IotPkcs11_xInitializePkcs11SessionNullC_Login( void )
     prvP11FunctionList.C_Login = NULL;
 
     vCommonStubs();
-    pvPortMalloc_Stub( pvPkcs11MallocCb );
-    vPortFree_Stub( vPkcs11FreeCb );
+    fake_malloc_Stub( pvPkcs11MallocCb );
+    fake_free_Stub( vPkcs11FreeCb );
     C_GetSlotList_Stub( ( void * ) xGet1Item );
     C_OpenSession_IgnoreAndReturn( CKR_OK );
     C_Login_IgnoreAndReturn( CKR_OK );
@@ -693,8 +698,8 @@ void test_IotPkcs11_xInitializePkcs11SessionBadFunctionList2( void )
     C_GetFunctionList_Stub( ( void * ) &prvSetFunctionList2 );
     C_Initialize_IgnoreAndReturn( CKR_OK );
     C_GetSlotList_Stub( ( void * ) xGet1Item );
-    pvPortMalloc_Stub( pvPkcs11MallocCb );
-    vPortFree_Stub( vPkcs11FreeCb );
+    fake_malloc_Stub( pvPkcs11MallocCb );
+    fake_free_Stub( vPkcs11FreeCb );
     xResult = xInitializePkcs11Session( &xHandle );
 
     TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, xResult );
@@ -713,8 +718,8 @@ void test_IotPkcs11_xInitializePkcs11SessionAlreadyInitialized( void )
     C_GetFunctionList_Stub( ( void * ) &prvSetFunctionList );
     C_Initialize_IgnoreAndReturn( CKR_CRYPTOKI_ALREADY_INITIALIZED );
     C_GetSlotList_IgnoreAndReturn( CKR_OK );
-    pvPortMalloc_Stub( pvPkcs11MallocCb );
-    vPortFree_Stub( vPkcs11FreeCb );
+    fake_malloc_Stub( pvPkcs11MallocCb );
+    fake_free_Stub( vPkcs11FreeCb );
     C_OpenSession_IgnoreAndReturn( CKR_OK );
     C_Login_IgnoreAndReturn( CKR_OK );
     xResult = xInitializePkcs11Session( &xHandle );

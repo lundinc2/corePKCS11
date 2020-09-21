@@ -46,6 +46,9 @@
 #include "mbedtls/base64.h"
 #include "mbedtls/platform.h"
 #include "mbedtls/threading.h"
+#define mbedtls_free       MBEDTLS_PLATFORM_FREE_MACRO
+#define mbedtls_calloc     MBEDTLS_PLATFORM_CALLOC_MACRO
+
 
 /* Custom mbedtls utils include. */
 #include "mbedtls_error.h"
@@ -553,8 +556,6 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
     int32_t lMbedTLSResult = 0;
     CK_BBOOL xBool;
 
-    configASSERT( pxRsaContext != NULL );
-
     switch( pxAttribute->type )
     {
         case ( CKA_CLASS ):
@@ -665,9 +666,7 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
         int32_t lMbedTLSResult = 0;
         CK_RV xResult = CKR_OK;
 
-        configASSERT( pxMbedContext != NULL );
         mbedtls_ecp_keypair * pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx;
-        configASSERT( pxKeyPair != NULL );
 
         if( pxAttribute->type == CKA_SIGN )
         {
@@ -713,9 +712,7 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
         int32_t lMbedTLSResult = 0;
         CK_RV xResult = CKR_OK;
 
-        configASSERT( pxMbedContext != NULL );
         mbedtls_ecp_keypair * pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx;
-        configASSERT( pxKeyPair != NULL );
 
         if( pxAttribute->type == CKA_VERIFY )
         {
@@ -1826,7 +1823,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID slotID,
     if( CKR_OK == xResult )
     {
         /*
-         * Assign the session.
+          Assign the session.
          */
         pxSessionObj->ulState =
             ( 0UL != ( flags & CKF_RW_SESSION ) ) ? CKS_RW_PUBLIC_SESSION : CKS_RO_PUBLIC_SESSION;

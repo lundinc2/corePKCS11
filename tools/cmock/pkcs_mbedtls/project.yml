@@ -40,4 +40,4 @@
     - "iot_pkcs11.h" # For iot_pkcs11_pal.h
     - "md_internal.h"
     - "pk_internal.h"
-      #- "mock_dummy_mutex.h"
+    - "mock_dummy_mutex.h"

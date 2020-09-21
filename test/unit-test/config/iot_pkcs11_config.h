@@ -56,6 +56,17 @@
 #include "logging_stack.h"
 
 /**
+ * @brief Malloc API used by iot_pkcs11.h
+ */
+#define PKCS11_MALLOC fake_malloc
+
+/**
+ * @brief Free API used by iot_pkcs11.h
+ */
+#define PKCS11_FREE fake_free
+
+
+/**
  * @brief PKCS #11 default user PIN.
  *
  * The PKCS #11 standard specifies the presence of a user PIN. That feature is
