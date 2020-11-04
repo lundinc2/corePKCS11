@@ -375,16 +375,16 @@ static CK_BBOOL prvOperationActive( const P11Session_t * pxSession )
 {
     /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
-    CK_BBOOL xResult = ( CK_BBOOL ) CK_FALSE;
+    CK_BBOOL xResult = ( CK_BBOOL ) CK_TRUE;
 
-    if( ( pxSession->xOperationDigestMechanism != pkcs11NO_OPERATION ) ||
-        ( pxSession->xOperationSignMechanism != pkcs11NO_OPERATION ) ||
-        ( pxSession->xOperationVerifyMechanism != pkcs11NO_OPERATION ) ||
-        ( pxSession->pxFindObjectLabel != NULL ) )
+    if( ( pxSession->xOperationDigestMechanism == pkcs11NO_OPERATION ) &&
+        ( pxSession->xOperationSignMechanism == pkcs11NO_OPERATION ) &&
+        ( pxSession->xOperationVerifyMechanism == pkcs11NO_OPERATION ) &&
+        ( pxSession->pxFindObjectLabel == NULL ) )
     {
         /* See explanation in prvCheckValidSessionAndModule for this exception. */
         /* coverity[misra_c_2012_rule_10_5_violation] */
-        xResult = ( CK_BBOOL ) CK_TRUE;
+        xResult = ( CK_BBOOL ) CK_FALSE;
     }
 
     return xResult;
