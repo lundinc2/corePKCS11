@@ -377,10 +377,12 @@ static CK_BBOOL prvOperationActive( const P11Session_t * pxSession )
     /* coverity[misra_c_2012_rule_10_5_violation] */
     CK_BBOOL xResult = ( CK_BBOOL ) CK_FALSE;
 
-    if( ( pxSession->xOperationDigestMechanism != pkcs11NO_OPERATION ) ||
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
+    /* coverity[misra_c_2012_rule_10_5_violation] */
+    if( ( CK_BBOOL ) ( ( pxSession->xOperationDigestMechanism != pkcs11NO_OPERATION ) ||
         ( pxSession->xOperationSignMechanism != pkcs11NO_OPERATION ) ||
         ( pxSession->xOperationVerifyMechanism != pkcs11NO_OPERATION ) ||
-        ( pxSession->pxFindObjectLabel != NULL ) )
+        ( pxSession->pxFindObjectLabel != NULL ) ) == ( CK_BBOOL) CK_TRUE )
     {
         /* See explanation in prvCheckValidSessionAndModule for this exception. */
         /* coverity[misra_c_2012_rule_10_5_violation] */
