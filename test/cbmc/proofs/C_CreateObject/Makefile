@@ -8,12 +8,17 @@ HARNESS_FILE = C_CreateObject_harness
 # Litani dashboard. It can be human-readable and contain spaces if you wish.
 PROOF_UID = C_CreateObject
 
-DEFINES +=
+CERT_TEMPLATE_SIZE=6
+DEFINES += -DCERT_TEMPLATE_SIZE=$(CERT_TEMPLATE_SIZE)
 INCLUDES += -I$(SRCDIR)/3rdparty/mbedtls/include
 INCLUDES += -I$(SRCDIR)/3rdparty/mbedtls_utils
 
 REMOVE_FUNCTION_BODY +=
-UNWINDSET +=
+UNWINDSET += prvCreateCertificate.0:$(CERT_TEMPLATE_SIZE)
+
+# Stopped error'ing
+#UNWINDSET += prvGetKeyType.0:$(CERT_TEMPLATE_SIZE)
+#UNWINDSET += prvGetObjectClass.0:$(CERT_TEMPLATE_SIZE)
 
 PROOF_SOURCES += $(PROOFDIR)/$(HARNESS_FILE).c
 PROOF_SOURCES += $(SRCDIR)/test/cbmc/stubs/mbedtls_stubs.c

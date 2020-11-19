@@ -65,7 +65,7 @@ void harness()
     {
         ( void ) C_CreateObject( xSession,
                               ( CK_ATTRIBUTE_PTR ) &xTemplate,
-                              sizeof( xTemplate ) / sizeof( CK_ATTRIBUTE ),
+                              CERT_TEMPLATE_SIZE,
                               xObject );
     }
 }
