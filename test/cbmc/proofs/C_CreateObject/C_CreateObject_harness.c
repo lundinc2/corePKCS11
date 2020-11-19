@@ -46,14 +46,9 @@ void harness()
     CK_BYTE xSubject[] = "TestSubject";
     CK_BYTE xCert[] = "Empty Cert";
     CK_BYTE pucLabel[] = "EmptyLabel";
-    PKCS11_CertificateTemplate_t xTemplate = { 
-        { CKA_CLASS, &xCertificateClass, sizeof( xCertificateClass ) },
-        { CKA_SUBJECT, xSubject, sizeof( xSubject ) },
-        { CKA_VALUE, ( CK_VOID_PTR ) xCert, ( CK_ULONG ) sizeof( xCert ) },
-        { CKA_LABEL, ( CK_VOID_PTR ) pucLabel, sizeof( pucLabel ) },
-        { CKA_CERTIFICATE_TYPE, &xCertificateType, sizeof( CK_CERTIFICATE_TYPE ) },
-        { CKA_TOKEN, &xTokenStorage, sizeof( xTokenStorage ) }
-    };
+    CK_ULONG ulCount;
+    __CPROVER_assume( ulCount < CERT_TEMPLATE_SIZE );
+    CK_ATTRIBUTE_PTR xTemplate = malloc( sizeof( CK_ATTRIBUTE ) * ulCount );
 
 
     xResult = C_Initialize( NULL );
@@ -64,8 +59,8 @@ void harness()
     if( xResult == CKR_OK )
     {
         ( void ) C_CreateObject( xSession,
-                              ( CK_ATTRIBUTE_PTR ) &xTemplate,
-                              CERT_TEMPLATE_SIZE,
+                              ( CK_ATTRIBUTE_PTR ) xTemplate,
+                              ulCount,
                               xObject );
     }
 }
