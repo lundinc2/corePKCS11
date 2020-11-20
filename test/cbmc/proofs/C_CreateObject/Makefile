@@ -11,7 +11,7 @@ PROOF_UID = C_CreateObject
 # CERT_TEMPLATE_SIZE is bounded to reduce proof run time. A user can have an
 # arbitrarily large template size, but our library uses only 6. Memory safety
 # can be proven within a reasonable bound past what our stack cares about. It
-# adds not value to the proof to input the largest possible template of the
+# adds no value to the proof to input the largest possible template of the
 # maximum CK_ULONG size.
 CERT_TEMPLATE_SIZE=10
 DEFINES += -DCERT_TEMPLATE_SIZE=$(CERT_TEMPLATE_SIZE)
