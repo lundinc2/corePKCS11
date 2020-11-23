@@ -70,14 +70,13 @@ void  __CPROVER_file_local_core_pkcs11_mbedtls_c_prvFindObjectInListByHandle( CK
                                          CK_BYTE_PTR * ppcLabel,
                                          CK_ULONG_PTR pxLabelLength )
 {
+    CK_OBJECT_HANDLE handle;
     __CPROVER_assert( pxPalHandle != NULL, "ppcLabel was NULL." );
     __CPROVER_assert( ppcLabel != NULL, "ppcLabel was NULL." );
     __CPROVER_assert( pxLabelLength != NULL, "ppcLabel was NULL." );
 
-    /* The value of the PAL handle doesn't matter as long as it is not 0, which is considered
-     * an invalid handle by the PKCS #11 specification.
-     */
-    *pxPalHandle = 1;
+    __CPROVER_assume( handle < 4 );
+    *pxPalHandle = handle;
 }
 
 void harness()
