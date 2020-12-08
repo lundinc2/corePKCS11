@@ -69,10 +69,12 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetSlotList )( CK_BBOOL tokenPresent,
                                              CK_SLOT_ID_PTR pSlotList,
                                              CK_ULONG_PTR pulCount )
 {
-    CK_ULONG ulCount = nondet_uint64();
+    uint32_t ulCount = nondet_uint32();
     static CK_SLOT_ID pxSlot[ 128 ] = { 0 };
+    __CPROVER_assert( pSlotList != NULL, "Received an unexpected NULL pointer." );
+    __CPROVER_assert( pulCount != NULL, "Received an unexpected NULL pointer." );
 
-    __CPROVER_assume( ulCount < 128 );
+    __CPROVER_assume( ulCount > 0 );
     __CPROVER_assume( ulCount <= sizeof( pxSlot ) );
 
     *pSlotList = pxSlot;
