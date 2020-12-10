@@ -150,8 +150,8 @@ int mbedtls_pk_verify( mbedtls_pk_context * ctx,
 
 static void threading_mutex_init( mbedtls_threading_mutex_t * mutex )
 {
-    __CPROVER_assert( mutex != NULL, "Received an unexpected NULL pointer." );
     mbedtls_threading_mutex_t * m = malloc( sizeof( mbedtls_threading_mutex_t ) );
+    __CPROVER_assert( mutex != NULL, "Received an unexpected NULL pointer." );
     __CPROVER_assume( m != NULL );
     mutex = m;
 }
@@ -159,7 +159,6 @@ static void threading_mutex_init( mbedtls_threading_mutex_t * mutex )
 static void threading_mutex_free( mbedtls_threading_mutex_t * mutex )
 {
     __CPROVER_assert( mutex != NULL, "Received an unexpected NULL pointer." );
-    free( mutex );
 }
 
 
