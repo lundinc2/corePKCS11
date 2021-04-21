@@ -146,6 +146,8 @@ list(APPEND mock_list
             "${MODULE_ROOT_DIR}/source/dependency/3rdparty/mbedtls/include/mbedtls/base64.h"
             "${MODULE_ROOT_DIR}/source/dependency/3rdparty/mbedtls/include/mbedtls/bignum.h"
             "${MODULE_ROOT_DIR}/source/dependency/3rdparty/mbedtls/include/mbedtls/entropy.h"
+            "${MODULE_ROOT_DIR}/source/dependency/3rdparty/mbedtls/include/mbedtls/cipher.h"
+            "${MODULE_ROOT_DIR}/source/dependency/3rdparty/mbedtls/include/mbedtls/cmac.h"
             "${MODULE_ROOT_DIR}/source/dependency/3rdparty/mbedtls/include/mbedtls/md.h"
             "${MODULE_ROOT_DIR}/source/dependency/3rdparty/mbedtls/include/mbedtls/rsa.h"
             "${MODULE_ROOT_DIR}/source/dependency/3rdparty/mbedtls/include/mbedtls/ecp.h"
